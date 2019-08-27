@@ -1,0 +1,21 @@
+{
+  "name": "aoebot",
+  "version": "1.0.0",
+  "description": "A Discord bot for AoE2 taunt chat sounds.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "João Pedro Pimenta",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "ffmpeg": "0.0.4",
+    "ffmpeg-binaries": "^3.2.2-3",
+    "node-opus": "^0.3.2"
+  }
+}
