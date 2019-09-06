@@ -1,1 +1,1 @@
-exports.botToken = "Testando gitignore";
+exports.botToken = "NTYwMjYxNzAxMTIwMDMyNzc4.XXGXJw.umtfbgYhgi1cQAhCF_KAmNw1uso";
