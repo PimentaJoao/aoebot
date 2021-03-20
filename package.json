@@ -1,21 +1,32 @@
 {
   "name": "aoebot",
   "version": "1.0.0",
-  "description": "A Discord bot for AoE2 taunt chat sounds.",
+  "description": "A Discord bot that reproduces Age of Empires 2 taunts in the voice channel.",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PimentaJoao/aoebot.git"
+  },
   "keywords": [
+    "discord.js",
     "discord",
-    "bot"
+    "bot",
+    "\"age",
+    "of",
+    "empires\"",
+    "aoe"
   ],
-  "author": "João Pedro Pimenta",
+  "author": "João Pimenta",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PimentaJoao/aoebot/issues"
+  },
+  "homepage": "https://github.com/PimentaJoao/aoebot#readme",
   "dependencies": {
-    "discord.js": "^11.5.1",
-    "ffmpeg-static": "^2.6.0",
-    "node-opus": "^0.3.2",
-    "prism-media": "^1.1.0"
+    "@discordjs/opus": "^0.5.0",
+    "discord.js": "^12.5.1"
   }
 }
