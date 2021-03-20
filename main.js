@@ -1,23 +1,38 @@
-const Discord       = require("discord.js");
-const fs            = require("fs");
-const { token }     = require("./token.js");
-const { tauntsTable }   = require("./taunts.js");
+const Discord = require("discord.js");
+const fs = require("fs");
+const { token } = require("./token.js");
+const { tauntsTable } = require("./taunts.js");
 
 const client = new Discord.Client();
 
 const commandPrefix = "!aoe ";
 const commandList = fs.readFileSync("./commands.txt", "utf8");
 let isConnected = false;
-let userMessage;
-let = numeroDeChamadas = 0;
+
 client.on("ready", () => {
-    console.log("I'm now connected to this bitch ass server of yours!.");
+    console.log("I'm connected to the server!.");
 });
 
 client.on("message", (msg) => {
     
-    userMessage = msg.content.toLowerCase();
-
+    // Ignora mensagem caso não venha de uma guild/server
+    if (!msg.guild) return;
+    
+    // Ignora mensagem caso venha de um bot (ou dele mesmo)
+    if (msg.author.bot) return;
+    
+    // Ignora mensagem caso ela não seja dirigida ao bot
+    // (primeiros chars =/= prefixo de comando)
+    if (msg.content.substring(0, commandPrefix.length) !== commandPrefix) return;
+    
+    // Gera um aviso e ignora mensagem caso venha de alguém
+    // que não está no canal de voz.
+    if (!msg.member.voice.channel) {
+        msg.reply('Você precisa estar conectado num canal!');
+        return;
+    }
+    
+    let userMessage = msg.content.toLowerCase();
     if (isNaN(userMessage)){ // If message is not a number, then it is a normal command.
 
         // Connecting 
@@ -51,7 +66,6 @@ client.on("message", (msg) => {
         }
 
     }
-
     else { // If message is a number, then it is a taunt 
         userMessage = parseInt(userMessage, 10);
         if (isConnected){
