@@ -2,7 +2,7 @@ List of commands
 
 !aoe connect: connects bot to your voice channel.
 !aoe disconnect: disconnects bot from your voice channel.
-!aoe commands: shows list of commands.
+!aoe [commands, help, list]: shows list of commands.
 
 List of Taunts
 

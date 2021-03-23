@@ -1,1 +1,1 @@
-exports.token = "YOUR_BOT_TOKEN_HERE";
+exports.token = "NTYwMjYxNzAxMTIwMDMyNzc4.XJrGXg.AqeN0Fp81YidOwu-BI-WMpGZoGw";

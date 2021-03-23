@@ -1,81 +1,124 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const { token } = require("./token.js");
-const { tauntsTable } = require("./taunts.js");
 
 const client = new Discord.Client();
 
-const commandPrefix = "!aoe ";
+const commandPrefix = "!aoe";
 const commandList = fs.readFileSync("./commands.txt", "utf8");
-let isConnected = false;
+const serversConfigs = {
+    '819290156946554930': {
+        connectedToVoiceChannel: false,
+        voiceChannelId: undefined,
+        connection: null,
+    },
+    '771605067291295786': {
+        connectedToVoiceChannel: false,
+        voiceChannelId: undefined,
+        connection: null,
+    },
+};
 
 client.on("ready", () => {
-    console.log("I'm connected to the server!.");
+    console.log("I'm online!.\n");
 });
 
-client.on("message", (msg) => {
+client.on("guildCreate", (guild) => {
+
+    console.log(`Joined ${guild.id}`);
+
+    // server config constructor
+    serversConfigs[guild.id] = {
+        connectedToVoiceChannel: false,
+        voiceChannelId: undefined,
+        connection: null,
+    }
+});
+
+client.on("guildDelete", (guild) => {
     
-    // Ignora mensagem caso não venha de uma guild/server
+    console.log(`Left ${guild.id}`)
+
+    // releases server config
+    delete serversConfigs[guild.id];
+});
+
+client.on("message", async (msg) => {
+
+    // Ignores message if it doesn't come from guild/server
     if (!msg.guild) return;
-    
-    // Ignora mensagem caso venha de um bot (ou dele mesmo)
+
+    // Ignores message if it comes from a bot (or itself)
     if (msg.author.bot) return;
     
-    // Ignora mensagem caso ela não seja dirigida ao bot
-    // (primeiros chars =/= prefixo de comando)
-    if (msg.content.substring(0, commandPrefix.length) !== commandPrefix) return;
-    
-    // Gera um aviso e ignora mensagem caso venha de alguém
-    // que não está no canal de voz.
-    if (!msg.member.voice.channel) {
-        msg.reply('Você precisa estar conectado num canal!');
-        return;
-    }
-    
-    let userMessage = msg.content.toLowerCase();
-    if (isNaN(userMessage)){ // If message is not a number, then it is a normal command.
+    // Ignores message if user is not in a voice channel
+    if (!msg.member.voice.channel) return;
 
-        // Connecting 
-        if (!isConnected && userMessage ===  commandPrefix + "connect") {
-            if (msg.member.voiceChannel) {
-                msg.channel.send(`Connecting to: ${msg.member.voiceChannel}`);
-                msg.member.voiceChannel.join()
-                .then(connection => {
-                    console.log("Connected to a voice channel.");
-                    isConnected = true;
-                }).catch(err => {
+    // "Normalizes" message, cutting prefix + 1 space character
+    let userMessage = msg.content.toLowerCase().slice(commandPrefix.length + 1);
+
+    // If message is not a number and starts with command prefix, it is a normal command.
+    if (msg.content.startsWith(commandPrefix) && isNaN(msg.content)) {
+
+        if (userMessage === "connect") {
+            if (!serversConfigs[msg.guild.id].connectedToVoiceChannel) {
+                try {
+                    serversConfigs[msg.guild.id].connectedToVoiceChannel = true;
+                    serversConfigs[msg.guild.id].voiceChannelId = msg.member.voice.channel.id;
+                    serversConfigs[msg.guild.id].connection = await msg.member.voice.channel.join();
+                    msg.channel.send(`Connecting to: ${msg.member.voice.channel}`);
+                } catch (err) {
+                    msg.channel.send('Sorry, there was an error! Try again later.');
+                    console.log(`[ERR] There was an error trying to connect to: ${msg.member.voice.channel}`);
                     console.log(err);
-                });
+                }
             }
             else {
-                msg.channel.send(`You must be in a Voice Channel, ${msg.author.username}!`);
+                msg.channel.send(`Already connected to: ${msg.member.voice.channel}!`);
             }
-        }
-        // If already connected
-        else if (isConnected && userMessage === commandPrefix + "connect") {
-            msg.channel.send(`Already connected to: ${msg.member.voiceChannel}!`);
-        }
-        // Disconnecting
-        if (isConnected && userMessage === commandPrefix + "disconnect"){
-            msg.member.voiceChannel.leave();
-            isConnected = false;
-        }
-        // Show commands
-        if (isConnected && (userMessage === commandPrefix + "commands") || ((userMessage === commandPrefix + "help"))){
-            msg.channel.send(commandList);
+            return;
         }
 
+        // Disconnecting
+        if (userMessage === "disconnect") {
+            if (serversConfigs[msg.guild.id].connectedToVoiceChannel) {
+                msg.member.voice.channel.leave();
+                serversConfigs[msg.guild.id].connectedToVoiceChannel = false;
+                serversConfigs[msg.guild.id].voiceChannelId = undefined;
+                serversConfigs[msg.guild.id].connection = null;
+                msg.channel.send(`Disconnecting from: ${msg.member.voice.channel}`);
+            }
+            else {
+                msg.channel.send(`I'm not connected to: ${msg.member.voice.channel}!`);
+            }
+            return;
+        }
+        // Show commands
+        if (userMessage === "commands" || userMessage ===  "help" || userMessage === "list"){
+            msg.channel.send(commandList);
+            return;
+        }
+        if (userMessage === "dev"){
+            console.log(serversConfigs);
+            return;
+        }
     }
-    else { // If message is a number, then it is a taunt 
-        userMessage = parseInt(userMessage, 10);
-        if (isConnected){
-            if ((userMessage >= 1 && userMessage <= 42)){
-                console.log("Entrei na condição.");
-                tauntsTable[userMessage-1](msg);
+    // If message is a number, then it is a taunt
+    else {
+        let taunt = parseInt(msg.content, 10);
+        if (serversConfigs[msg.guild.id].connectedToVoiceChannel){
+            if ((taunt >= 1 && taunt <= 42)) {
+                serversConfigs[msg.guild.id].connection.play(`./tauntsFolder/${taunt}.mp3`);
             }
-            else if (userMessage === 69) {
-                tauntsTable[42](msg);
+            else if (taunt === 69) {
+                msg.channel.send("( ͡° ͜ʖ ͡°)");
             }
+            else if (taunt === 420) {
+                msg.channel.send("( * ͜ʖ*)y─┛");
+            }         
+            else {
+                return;
+            }   
         }
     }
 
