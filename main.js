@@ -123,4 +123,4 @@ client.on("message", async (msg) => {
 
  });
 
-client.login(token);
+client.login(process.env.AOE_TOKEN);
